@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安装环境检测 - <?=$config['siteName']?>安装向导</title>
+    <!-- 引入基础配置和 Layui -->
+    <?php require_once ('step-base.html');?>
+    <!-- 引入 Tailwind CSS 引擎 -->
+    <script src="../assets/V7/tailwindcss.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 antialiased py-8 px-4 sm:px-6">
+
+<div class="max-w-4xl mx-auto">
+
+    <!-- 顶部标题与进度条区 -->
+    <div class="text-center mb-8 animate-[fadeIn_0.5s_ease-out]">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white shadow-sm mb-4">
+            <i class="layui-icon layui-icon-console text-3xl text-brand-500"></i>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight"><?=$config['siteName']?> 安装向导</h1>
+        <p class="text-slate-500 mt-2">第二步：服务器环境与扩展检测</p>
+    </div>
+
+    <!-- 拦截警告卡片 -->
+    <?php if(is_file($lockFile)):?>
+    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-5 mb-6 flex items-start shadow-sm animate-[translate-y-[-10px]_0.3s_ease-out]">
+        <i class="layui-icon layui-icon-close-fill text-rose-500 text-xl mr-3 mt-0.5"></i>
+        <div>
+            <h3 class="text-rose-700 font-bold mb-1">安装已被锁定</h3>
+            <p class="text-rose-600 text-sm">系统检测到您已完成安装。为了数据安全，如需重新安装，请先手动删除服务器上的 <code class="bg-rose-100 px-1.5 py-0.5 rounded text-rose-800">install/install.lock</code> 文件。</p>
+        </div>
+    </div>
+    <?php endif;?>
+
+    <div class="space-y-6">
+        
+        <!-- 模块 1：系统环境信息 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50/80 border-b border-slate-100 flex items-center">
+                <i class="layui-icon layui-icon-engine text-brand-500 mr-2 text-lg"></i>
+                <h2 class="text-base font-bold text-slate-800 m-0">系统环境信息</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                        <tr class="bg-white border-b border-slate-100">
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4">检测项目</th>
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4">最低配置要求</th>
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4">当前服务器配置</th>
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4 text-center">状态</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700">操作系统</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">不限</td>
+                            <td class="px-6 py-4 text-sm font-medium text-brand-600"><?php echo php_uname('s'); ?></td>
+                            <td class="px-6 py-4 text-center">
+                                <i class="layui-icon layui-icon-ok text-emerald-500 font-bold text-xl drop-shadow-sm"></i>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700">PHP 版本</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">仅php7.4</td>
+                            <td class="px-6 py-4 text-sm font-medium <?php echo version_compare(PHP_VERSION, '7.4.0', '>=') ? 'text-emerald-600' : 'text-rose-500'; ?>"><?php echo PHP_VERSION ?></td>
+                            <td class="px-6 py-4 text-center">
+                                <?php if(version_compare(PHP_VERSION, '7.4.0', '>=') && version_compare(PHP_VERSION, '7.5.0', '<')): ?>
+                                <i class="layui-icon layui-icon-ok text-emerald-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php else: ?>
+                                <i class="layui-icon layui-icon-close text-rose-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php endif ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 模块 2：扩展插件信息 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50/80 border-b border-slate-100 flex items-center">
+                <i class="layui-icon layui-icon-component text-brand-500 mr-2 text-lg"></i>
+                <h2 class="text-base font-bold text-slate-800 m-0">核心扩展与函数检测</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                        <tr class="bg-white border-b border-slate-100">
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4">扩展/函数名称</th>
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4">要求状态</th>
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4">当前状态</th>
+                            <th class="px-6 py-3.5 text-sm font-semibold text-slate-500 w-1/4 text-center">检测结果</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        
+                        <!-- 数据库模块检测 -->
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700">数据库驱动</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">MySQLi / PDO</td>
+                            <?php
+                                $pdo = false;
+                                $db_status_text = '不支持PDO_MYSQL';
+                                if(class_exists('PDO', false)) {
+                                   if(defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
+                                        $db_status_text = 'PDO_MYSQL';
+                                        $pdo = true;
+                                    }
+                                }
+                                if(!$pdo) {
+                                    if (function_exists('mysqli_close')) {
+                                        $db_status_text = 'MySQLi';
+                                        $pdo = true;
+                                    }
+                                }
+                            ?>
+                            <td class="px-6 py-4 text-sm font-medium <?php echo $pdo ? 'text-emerald-600' : 'text-rose-500'; ?>"><?php echo $db_status_text; ?></td>
+                            <td class="px-6 py-4 text-center">
+                                <?php if ($pdo): ?>
+                                <i class="layui-icon layui-icon-ok text-emerald-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php else: ?>
+                                <i class="layui-icon layui-icon-close text-rose-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php endif ?>
+                            </td>
+                        </tr>
+
+                        <!-- PDO 扩展检测 -->
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700">PDO 扩展</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">必须支持</td>
+                            <td class="px-6 py-4 text-sm font-medium <?php echo extension_loaded('pdo') ? 'text-emerald-600' : 'text-rose-500'; ?>">
+                                <?php echo extension_loaded('pdo') ? '已开启' : '未开启'; ?>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <?php if(extension_loaded('pdo')): ?>
+                                <i class="layui-icon layui-icon-ok text-emerald-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php else: ?>
+                                <i class="layui-icon layui-icon-close text-rose-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php endif ?>
+                            </td>
+                        </tr>
+
+                        <!-- Session 检测 -->
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700">Session 会话</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">必须支持</td>
+                            <td class="px-6 py-4 text-sm font-medium <?php echo function_exists('session_start') ? 'text-emerald-600' : 'text-rose-500'; ?>">
+                                <?php echo function_exists('session_start') ? '支持' : '不支持'; ?>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <?php if(function_exists('session_start')): ?>
+                                <i class="layui-icon layui-icon-ok text-emerald-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php else: ?>
+                                <i class="layui-icon layui-icon-close text-rose-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php endif ?>
+                            </td>
+                        </tr>
+
+                        <!-- CURL 检测 -->
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700">CURL 扩展</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">必须支持</td>
+                            <td class="px-6 py-4 text-sm font-medium <?php echo function_exists('curl_exec') ? 'text-emerald-600' : 'text-rose-500'; ?>">
+                                <?php echo function_exists('curl_exec') ? '支持' : '不支持'; ?>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <?php if(function_exists('curl_exec')): ?>
+                                <i class="layui-icon layui-icon-ok text-emerald-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php else: ?>
+                                <i class="layui-icon layui-icon-close text-rose-500 font-bold text-xl drop-shadow-sm"></i>
+                                <?php endif ?>
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="px-6 py-5 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-center gap-3">
+            <a href="./index.php?s=step1" class="px-8 py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm text-center">
+                <i class="layui-icon layui-icon-left mr-1"></i> 上一步
+            </a>
+            
+            <a href="javascript:;" data-href="./index.php?s=step3" class="next px-8 py-3 rounded-xl font-bold transition-all duration-300 shadow-sm text-center bg-brand-500 text-white hover:bg-brand-600 hover:-translate-y-0.5">
+                环境无误，下一步 <i class="layui-icon layui-icon-right ml-1"></i>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    layui.use('layer', function(){
+        let $ = layui.jquery, layer = layui.layer;
+        
+        // 核心修复：接收 PHP 端的安装锁定状态
+        let isLocked = <?php echo is_file($lockFile) ? 'true' : 'false'; ?>;
+        
+        // 判断环境是否通过检测
+        $(document).on("click", '.next', function(){
+            
+            // 拦截级别 1：如果存在安装锁，绝对禁止下一步！
+            if(isLocked){
+                layer.msg('系统已安装！为了数据安全，请先手动删除 install/install.lock 文件', {icon: 2, time: 3000, anim: 6});
+                return false;
+            }
+            
+            // 拦截级别 2：判断服务器检测是否达标
+            let msg = typeof window.errorMsg !== 'undefined' ? window.errorMsg : '';
+            if($('.layui-icon-ok').length < 6 || msg){
+                msg = msg ? msg : '您的服务器配置未满足最低要求，请修正标红项目后重试！';
+                layer.msg(msg, {icon: 2, time: 3000, anim: 6});
+                
+                // 给失败的行加一个抖动特效提示
+                $('.layui-icon-close').closest('tr').css('background-color', '#fff1f2').delay(300).queue(function(next){
+                    $(this).css('background-color', '');
+                    next();
+                });
+            } else {
+                // 环境无误且未被锁定，放行
+                var loadIdx = layer.load(2, {shade: [0.1, '#fff']});
+                window.location.href = $(this).data('href');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
